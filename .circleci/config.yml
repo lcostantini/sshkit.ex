@@ -1,0 +1,73 @@
+version: 2.1
+jobs:
+  check:
+    parameters:
+      elixir:
+        type: string
+    docker:
+      - image: circleci/elixir:<<parameters.elixir>>
+        environment:
+          MIX_ENV: test
+    working_directory: ~/sshkit
+    steps:
+      - checkout
+      - run:
+          name: Install Hex
+          command: mix local.hex --force
+      - restore_cache:
+          keys:
+            - mix-cache-{{ arch }}-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - mix-cache-{{ arch }}-{{ .Branch }}
+            - mix-cache-{{ arch }}
+      - restore_cache:
+          keys:
+            - build-cache-{{ arch }}-{{ .Branch }}
+            - build-cache-{{ arch }}
+      - run:
+          name: Install dependencies
+          command: mix deps.get
+      - run:
+          name: Compile
+          command: mix compile
+      - save_cache:
+          key: mix-cache-{{ arch }}-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths: deps
+      - save_cache:
+          key: mix-cache-{{ arch }}-{{ .Branch }}
+          paths: deps
+      - save_cache:
+          key: mix-cache-{{ arch }}
+          paths: deps
+      - save_cache:
+          key: build-cache-{{ arch }}-{{ .Branch }}
+          paths: _build
+      - save_cache:
+          key: build-cache-{{ arch }}
+          paths: _build
+      - run:
+          name: Run static code analysis
+          command: mix credo --strict
+      - setup_remote_docker
+      - run:
+          name: Run unit tests
+          command: mix test --exclude functional --max-cases=4
+      - run:
+          name: Run functional tests
+          command: mix test --only functional --max-cases=4
+      - store_test_results:
+          path: _build/test/lib/sshkit
+      # TODO: Run: mix inch.report
+workflows:
+  version: 2
+  checks:
+    jobs:
+      # Compatibility between Elixir and Erlang/OTP
+      # https://hexdocs.pm/elixir/master/compatibility-and-deprecations.html
+      - check:
+          elixir: "1.5"
+      - check:
+          elixir: "1.6"
+      - check:
+          elixir: "1.7"
+      - check:
+          elixir: "1.8"
