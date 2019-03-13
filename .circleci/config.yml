@@ -53,7 +53,10 @@ jobs:
           command: mix test --exclude functional --max-cases=4
       - run:
           name: Run functional tests
-          command: mix test --only functional --max-cases=4
+          command: |
+            docker create -v /sshkit --name source alpine:3.8 /bin/true
+            docker cp ~/sshkit/. source:/sshkit
+            docker run --volumes-from source circleci/elixir sh -c 'cd /sshkit && mix local.hex --force && mix deps.get && mix compile && mix test --only functional --max-cases=4'
       - store_test_results:
           path: _build/test/lib/sshkit
       # TODO: Run: mix inch.report
