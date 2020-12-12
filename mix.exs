@@ -1,12 +1,13 @@
 defmodule SSHKit.Mixfile do
   use Mix.Project
 
-  @version "0.3.0"
+  @name "sshkit"
+  @version "1.0.0"
   @source "https://github.com/bitcrowd/sshkit.ex"
 
   def project do
     [app: :sshkit,
-     name: "sshkit",
+     name: @name,
      version: @version,
      elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
@@ -27,7 +28,7 @@ defmodule SSHKit.Mixfile do
     [{:credo, "~> 0.7", runtime: false, only: [:dev, :test]},
      {:ex_doc, "~> 0.21.2", runtime: false, only: [:dev]},
      {:inch_ex, "~> 1.0", runtime: false, only: [:dev, :test]},
-     {:mox, "~> 0.3", only: :test}]
+     {:mox, "~> 0.3", only: [:test]}]
   end
 
   defp description do
