@@ -20,17 +20,12 @@ jobs:
       - name: Install dependencies
         run: mix deps.get
 
-      # TODO: Enable in next release
-      #
-      # At the moment, we still have pending PRs etc.
-      # and introducing auto-formatting now would cause
-      # a ton of conflicts.
-      #
-      # - name: Check mix format
-      #   run: mix format --check-formatted
+      - name: Check mix format
+        run: mix format --check-formatted
 
-      - name: Compile with warnings as errors
-        run: mix compile --warnings-as-errors
+      # TODO: Enable check before finalizing release
+      # - name: Compile with warnings as errors
+      #   run: mix compile --warnings-as-errors
 
   analysis:
     name: Run static code analysis
@@ -71,7 +66,6 @@ jobs:
             elixir: "1.6.6"
           - erlang: "18.3"
             elixir: "1.5.3"
-
     steps:
       - uses: actions/checkout@v1
 

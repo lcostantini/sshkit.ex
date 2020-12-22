@@ -117,8 +117,8 @@ defmodule SSHKit.Channel do
 
   def send(channel, type, data, timeout) do
     Enum.reduce_while(data, :ok, fn
-      (datum, :ok) -> {:cont, send(channel, type, datum, timeout)}
-      (_, err) -> {:halt, err}
+      datum, :ok -> {:cont, send(channel, type, datum, timeout)}
+      _, err -> {:halt, err}
     end)
   end
 

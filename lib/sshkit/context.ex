@@ -14,7 +14,7 @@ defmodule SSHKit.Context do
 
   import SSHKit.Utils
 
-  defstruct [env: nil, path: nil, umask: nil, user: nil, group: nil]
+  defstruct env: nil, path: nil, umask: nil, user: nil, group: nil
 
   @type t() :: %__MODULE__{}
 
@@ -207,12 +207,19 @@ defmodule SSHKit.Context do
   end
 
   defp add(command, :sudo, nil, nil), do: command
-  defp add(command, :sudo, username, nil), do: "sudo -H -n -u #{username} -- sh -c #{shellquote(command)}"
-  defp add(command, :sudo, nil, groupname), do: "sudo -H -n -g #{groupname} -- sh -c #{shellquote(command)}"
-  defp add(command, :sudo, username, groupname), do: "sudo -H -n -u #{username} -g #{groupname} -- sh -c #{shellquote(command)}"
+
+  defp add(command, :sudo, username, nil),
+    do: "sudo -H -n -u #{username} -- sh -c #{shellquote(command)}"
+
+  defp add(command, :sudo, nil, groupname),
+    do: "sudo -H -n -g #{groupname} -- sh -c #{shellquote(command)}"
+
+  defp add(command, :sudo, username, groupname),
+    do: "sudo -H -n -u #{username} -g #{groupname} -- sh -c #{shellquote(command)}"
 
   defp add(command, :export, nil), do: command
   defp add(command, :export, env) when env == %{}, do: command
+
   defp add(command, :export, env) do
     exports = Enum.map_join(env, " ", fn {name, value} -> "#{name}=\"#{value}\"" end)
     "(export #{exports} && #{command})"
